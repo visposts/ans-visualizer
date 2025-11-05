@@ -24,7 +24,7 @@ export default function MobileWarning() {
         Desktop Required
       </Typography>
       <Typography variant="body1" align="center" color="text.secondary">
-        Please view this visualization on a desktop computer to fully experience the ANS algorithm.
+        Please view this visualization on a desktop computer.
       </Typography>
     </Box>
   );

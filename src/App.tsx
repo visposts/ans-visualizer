@@ -64,7 +64,10 @@ function App() {
             ANS Visualizer
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Illustration of the Asymmetric Numeral Systems algorithm
+            Illustration of the Asymmetric Numeral Systems algorithm. Duda et al., 2015.{' '}
+            <a href="https://ieeexplore.ieee.org/abstract/document/7170048" target="_blank" rel="noopener noreferrer">
+              [Link to paper]
+            </a>
           </Typography>
         </Box>
 
