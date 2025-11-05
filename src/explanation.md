@@ -132,3 +132,7 @@ In the above, there are two sources of loss in the compression efficiency:
 The first of these can be addressed by choosing $L=2^l$ large enough so that the proportions $p_i = f_i / L$ are accurate enough so that the loss is negligible.
 
 The second source of loss is more difficult to predict but can be examined empirically. (not yet explored)
+
+[Source code for the ANS Visualizer](https://github.com/magland/ans-visualizer)
+
+[Simple and efficient Python implementation of ANS](https://github.com/flatironinstitute/simple_ans)
