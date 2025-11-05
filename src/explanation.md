@@ -135,4 +135,4 @@ The second source of loss is more difficult to predict but can be examined empir
 
 [Source code for the ANS Visualizer](https://github.com/magland/ans-visualizer)
 
-[Simple and efficient Python implementation of ANS](https://github.com/flatironinstitute/simple_ans)
+[simple_ans: A simple and efficient Python implementation of ANS](https://github.com/flatironinstitute/simple_ans)
