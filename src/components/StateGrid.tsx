@@ -321,7 +321,7 @@ export default function StateGrid({ symbols }: StateGridProps) {
         />
       </Box>
 
-      <Box sx={{ mb: 1.5, p: 1.5, backgroundColor: "grey.100", borderRadius: 1, height: 45, overflow: "hidden" }}>
+      <Box sx={{ mb: 1.5, p: 1.5, backgroundColor: "grey.100", borderRadius: 1, height: 60, overflow: "hidden" }}>
         {hoveredState !== null ? (
           <Typography variant="body2">
             <Box component="span">
