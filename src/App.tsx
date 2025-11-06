@@ -45,7 +45,7 @@ function App() {
       <Tooltip title="View source on GitHub">
         <IconButton
           component="a"
-          href="https://github.com/magland/ans-visualizer"
+          href="https://github.com/visposts/ans-visualizer"
           target="_blank"
           rel="noopener noreferrer"
           sx={{
