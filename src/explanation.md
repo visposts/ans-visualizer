@@ -1,8 +1,19 @@
-## Explanation of Asymmetric Numeral Systems (ANS)
+# ANS Visualizer
+
+Asymmetric Numeral Systems (ANS) is a family of entropy coding methods used in data compression. It was invented by Jarek Duda.
+
+- [arXiv preprint, 2013](https://arxiv.org/abs/1311.2540)
+- [IEEE Paper, 2015](https://ieeexplore.ieee.org/abstract/document/7170048)
+
+For arrays of independently sampled symbols, ANS can achieve compression ratios that approach the theoretical limit defined by Shannon entropy. ANS has been adopted in various compression algorithms and formats, including Facebook's Zstandard and Apple's LZFSE.
+
+The [simple_ans](https://github.com/flatironinstitute/simple_ans) package is a simple and efficient Python implementation of ANS. The purpose of this app is to visualize the version of ANS encoding and decoding that is implemented in this library.
+
+## Explanation of ANS
 
 The core idea of ANS is to encode a sequence of symbols into a single integer state, with each symbol affecting the state in a way that reflects its probability of occurrence. This encoding is reversible, allowing us to recover the original sequence from the coded integer.
 
-Suppose that $\{0, 1, ..., S-1\}$ are the symbols we want to encode (in this UI these are denoted as $A, B, C, ...$), and assume that they occur with relative frequencies $f_0, ..., f_{S-1}$ (positive integers). The goal is to encode a sequence of symbols $(s_1, s_2, ..., s_k)$ into a single integer state $x$.
+Suppose that $\{0, 1, ..., S-1\}$ are the symbols we want to encode (in the interactive view, these are denoted as $A, B, C, ...$), and assume that they occur with relative frequencies $f_0, ..., f_{S-1}$ (positive integers). The goal is to encode a sequence of symbols $(s_1, s_2, ..., s_k)$ into a single integer state $x$.
 
 We assume that the symbols are sampled randomly and independently of one another. Let
 
@@ -11,8 +22,6 @@ L = \sum_{i=0}^{S-1} f_i
 $$
 
 be the sum of the symbol frequencies.
-
-## ANS Encoding/Decoding
 
 ### The Symbol Table
 To encode our symbols efficiently, we need a way to map between states and symbols that reflects their frequencies. We accomplish this using an infinite table $T$ that maps natural numbers to symbols: $T: \mathbb{N} \to \{0,...,S-1\}$
@@ -27,7 +36,7 @@ We construct this table with a periodic pattern where:
 - For any position $n$, $T(n) = T(n \text{ mod } L)$
 - Define $C_s = \sum_{i=0}^{s-1} f_i$ as the cumulative frequency (start position of symbol $s$ in each period)
 
-### The Encoding/Decoding Process
+### Encoding
 
 The encoding process works by maintaining a state value $x$ that evolves as we process each symbol. Starting from state $x_0$:
 
@@ -58,7 +67,9 @@ $$H = -\sum_{s=0}^{S-1} p_s \log(p_s)$$
 
 which matches the Shannon entropy of the symbol distribution. In other words, the integer $x_k$ encodes the state using the theoretically optimal number of bits.
 
-**Now for decoding.** Given a final state $x_k$, we can recover the original sequence as follows:
+### Decoding
+
+Given a final state $x_k$, we can recover the original sequence as follows:
 
 1. The last symbol $s_k$ is simply $T[x_k]$ (the symbol at position $x_k$)
 2. To get the previous state $x_{k-1}$:
@@ -69,6 +80,10 @@ which matches the Shannon entropy of the symbol distribution. In other words, th
 The formula for this decoding is
 
 $$x_i = (x_{i+1} // L) \cdot f_{s_i} + (x_{i+1} \text{ mod } L) - C(s_i)$$
+
+## Interactive Visualization
+
+This app illustrates the encoding and decoding processes described above. You specify the symbol frequencies and the table of states is shown with each integer state represented as a box. As you hover over a box, you can see the path of black arrows representing the decoding process as well as blue arrows representing the encoding process for all possibilities of the next symbol to encode. For technical reasons, you also need to specify the number of leading A's for the decoded sequence, but this information cannot be captured by just the integer state alone.
 
 ## Practical ANS Implementation
 
@@ -132,7 +147,3 @@ In the above, there are two sources of loss in the compression efficiency:
 The first of these can be addressed by choosing $L=2^l$ large enough so that the proportions $p_i = f_i / L$ are accurate enough so that the loss is negligible.
 
 The second source of loss is more difficult to predict but can be examined empirically. (not yet explored)
-
-[Source code for the ANS Visualizer](https://github.com/magland/ans-visualizer)
-
-[simple_ans: A simple and efficient Python implementation of ANS](https://github.com/flatironinstitute/simple_ans)

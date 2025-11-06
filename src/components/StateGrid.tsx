@@ -27,6 +27,22 @@ export default function StateGrid({ symbols }: StateGridProps) {
   const [boxesPerRow, setBoxesPerRow] = useState(0);
   const [hoveredState, setHoveredState] = useState<number | null>(null);
   const [numLeadingAs, setNumLeadingAs] = useState(0);
+  const [supportsHover, setSupportsHover] = useState(true);
+
+  // Detect if device supports hover (mouse) vs touch-only
+  useEffect(() => {
+    const hoverQuery = window.matchMedia("(hover: hover)");
+    setSupportsHover(hoverQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setSupportsHover(e.matches);
+    };
+
+    hoverQuery.addEventListener("change", handleChange);
+    return () => {
+      hoverQuery.removeEventListener("change", handleChange);
+    };
+  }, []);
 
   const L = useMemo(() => calculateL(symbols), [symbols]);
   const maxStates = 5000; // Show first 5000 states
@@ -39,14 +55,12 @@ export default function StateGrid({ symbols }: StateGridProps) {
   // Calculate edge chain on demand for hovered state
   const edgeChain = useMemo(() => {
     if (hoveredState === null) return [];
-    console.log("Calculating edge chain for state:", hoveredState);
     return calculateEdgeChain(hoveredState, symbols, numLeadingAs);
   }, [hoveredState, symbols, numLeadingAs]);
 
   // Calculate forward edges on demand for hovered state
   const forwardEdges = useMemo(() => {
     if (hoveredState === null) return [];
-    console.log("Calculating forward edges for state:", hoveredState);
     return calculateForwardEdges(hoveredState, symbols, maxStates);
   }, [hoveredState, symbols, maxStates]);
 
@@ -174,9 +188,11 @@ export default function StateGrid({ symbols }: StateGridProps) {
     forwardEdges,
   ]);
 
-  // Handle mouse move on canvas
+  // Handle mouse move on canvas (only on devices with hover support)
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (!supportsHover) return; // Skip hover on touch devices
+
       const canvas = canvasRef.current;
       if (!canvas || boxesPerRow === 0) return;
 
@@ -200,13 +216,48 @@ export default function StateGrid({ symbols }: StateGridProps) {
       );
       setHoveredState(boxIndex);
     },
-    [boxSize, boxesPerRow, L, canvasWidth, canvasHeight, states.length]
+    [supportsHover, boxSize, boxesPerRow, L, canvasWidth, canvasHeight, states.length]
   );
 
-  // Handle mouse leave
+  // Handle mouse leave (only on devices with hover support)
   const handleMouseLeave = useCallback(() => {
+    if (!supportsHover) return; // Skip on touch devices
     setHoveredState(null);
-  }, []);
+  }, [supportsHover]);
+
+  // Handle click on canvas (for touch devices and desktop)
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const canvas = canvasRef.current;
+      if (!canvas || boxesPerRow === 0) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      const config: RenderConfig = {
+        boxSize,
+        boxesPerRow,
+        L,
+        canvasWidth,
+        canvasHeight,
+      };
+
+      const boxIndex = getBoxAtPosition(
+        clickX,
+        clickY,
+        states.length,
+        config
+      );
+
+      if (!supportsHover) {
+        // On touch devices: toggle selection
+        setHoveredState(prevState => prevState === boxIndex ? null : boxIndex);
+      }
+      // On desktop with hover: do nothing (hover already handles it)
+    },
+    [supportsHover, boxSize, boxesPerRow, L, canvasWidth, canvasHeight, states.length]
+  );
 
   if (symbols.length === 0) {
     return (
@@ -289,7 +340,7 @@ export default function StateGrid({ symbols }: StateGridProps) {
           </Typography>
         ) : (
           <Typography variant="body2" color="text.secondary" sx={{ fontStyle: "italic" }}>
-            Hover over a state to see its details
+            {supportsHover ? "Hover over a state to see its details" : "Click on a state to see its details"}
           </Typography>
         )}
       </Box>
@@ -307,6 +358,7 @@ export default function StateGrid({ symbols }: StateGridProps) {
           ref={canvasRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
+          onClick={handleClick}
           style={{
             display: "block",
             cursor: "pointer",
