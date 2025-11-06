@@ -72,7 +72,7 @@ export default function FrequencyInput({ symbols, onSymbolsChange }: FrequencyIn
             />
             <IconButton
               onClick={() => handleRemoveSymbol(index)}
-              disabled={symbols.length <= 1}
+              disabled={index !== symbols.length - 1 || symbols.length <= 1}
               color="error"
               size="small"
             >
